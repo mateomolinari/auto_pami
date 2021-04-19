@@ -136,12 +136,12 @@ calendario = ["/html/body/div[2]/div/table/tbody/tr[1]/td[1]","/html/body/div[2]
 time.sleep(1)
 
 if __name__ == "__main__":
-    with open("C:/Users/Federico Murray/Documents/autopami/medicos.csv", "r+") as file:
+    with open("medicos.csv", "r+") as file:
         for medico in file:
             credenciales = medico.split(",")
             login_medico(credenciales[0], credenciales[1])       
 
-        with open("C:/Users/Federico Murray/Documents/autopami/pacientes.csv", "r+") as file2:
+        with open("pacientes.csv", "r+") as file2:
             for data_paciente in file2:
                 data = data_paciente.split(",")              
                 completar_form(data[0], data[1], data[2])
