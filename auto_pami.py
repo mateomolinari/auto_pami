@@ -1,40 +1,37 @@
 import time
 from selenium import webdriver
 
-driver = webdriver.Chrome(executable_path=r'C:/Users/Federico Murray/Documents/autopami/chromedriver.exe')
-driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/login.isp');
+driver = webdriver.Firefox(executable_path=r'/home/mmolinari/Repo/auto_pami/geckodriver')
+driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/login.isp')
 driver.maximize_window()
 
 def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
     
-    campo_usuario = driver.find_element_by_id('zk_comp_16') 
-    campo_usuario.send_keys(usuario)
-
-    campo_pw = driver.find_element_by_id('zk_comp_20') 
-    campo_pw.send_keys(password)
-
-    driver.find_element_by_id('zk_comp_37').click()
+    driver.find_element_by_id('zk_comp_16').send_keys(usuario) 
+    driver.find_element_by_id('zk_comp_20').send_keys(password)
+    driver.find_element_by_id('zk_comp_37').click() #BOTON LOGIN
 
     time.sleep(0.7)
-    driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp')
-
+    
 
 def completar_form(fecha, afiliado, cod_diag):
 
-    try:
+    driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp')
+
+    try: #MODIFICAR CODIGO DE PRESTACION
         if len(cod_diag) == 3:
             cod_final = cod_diag
         elif len(cod_diag) == 5:
             cod_final = cod_diag
         elif len(cod_diag) == 4:
             primer_parte, segunda_parte = cod_diag[0:3], cod_diag[3]
-            cod_final = primer_parte + "." + segunda_parte
+            cod_final = primer_parte + "." + segunda_parte  
     
     except ValorCodigo:
         print(cod_diag + "ES CODIGO INVALIDO")
 
 
-    try:
+    try: #MODIFICAR NUMERO DE AFILIADO
         if len(afiliado) == 12:
             afiliado_final = afiliado
             subcodigo_afiliado = False
@@ -45,23 +42,28 @@ def completar_form(fecha, afiliado, cod_diag):
             afiliado_final, subcodigo_afiliado = afiliado[:12], afiliado[12::]
 
     except ValorAfiliado:
-        print("Hay algun problema con el número de afiliado")
+        print("Hay algun problema con el numero de afiliado")
+
 
     driver.find_element_by_id('zk_comp_96').click() #BOTON ALTA
     time.sleep(1)
 
-    driver.find_element_by_id("zk_comp_128-btn").click() #CALENDARIO
-    time.sleep(0.5)
-    driver.find_element_by_id("_z_6-left").click()
-    time.sleep(0.5)
-    dia_fecha = fecha[:2]
-    for xpath in calendario:
-        if driver.find_element_by_xpath(xpath).text == dia_fecha:
-            driver.find_element_by_xpath(xpath).click()
-            break
+    def modif_calendario():
+        
+        driver.find_element_by_id("zk_comp_128-btn").click() #CALENDARIO
+        time.sleep(0.5)
+        driver.find_element_by_id("_z_6-left").click()
+        time.sleep(0.5)
+        dia_fecha = fecha[:2]
+
+        for xpath in calendario:
+            if driver.find_element_by_xpath(xpath).text == dia_fecha:
+                driver.find_element_by_xpath(xpath).click()
+                break
+
+    modif_calendario()
 
     time.sleep(0.5)  
-
     driver.find_element_by_id('zk_comp_130-real').click() #ABRE FORM DE AFILIADO
     time.sleep(0.1)
     driver.find_element_by_id("zk_comp_153").send_keys(afiliado_final) #NUMERO DE AFILIADO
