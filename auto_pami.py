@@ -1,12 +1,14 @@
 import time
 from selenium import webdriver
 
-driver = webdriver.Firefox(executable_path=r'/home/mmolinari/Repo/auto_pami/geckodriver')
-driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/login.isp')
-driver.maximize_window()
 
 def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
     
+    driver = webdriver.Firefox(executable_path=r'/home/mmolinari/Repo/auto_pami/geckodriver')
+    driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/login.isp') #NAVEGADOR
+    driver.maximize_window()
+    time.sleep(1)
+
     driver.find_element_by_id('zk_comp_16').send_keys(usuario) 
     driver.find_element_by_id('zk_comp_20').send_keys(password)
     driver.find_element_by_id('zk_comp_37').click() #BOTON LOGIN
@@ -16,7 +18,7 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
 
 def completar_form(fecha, afiliado, cod_diag):
 
-    driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp')
+    driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
 
     try: #MODIFICAR CODIGO DE PRESTACION
         if len(cod_diag) == 3:
@@ -63,7 +65,7 @@ def completar_form(fecha, afiliado, cod_diag):
 
     modif_calendario()
 
-    time.sleep(0.5)  
+    time.sleep(0.3)  
     driver.find_element_by_id('zk_comp_130-real').click() #ABRE FORM DE AFILIADO
     time.sleep(0.1)
     driver.find_element_by_id("zk_comp_153").send_keys(afiliado_final) #NUMERO DE AFILIADO
@@ -112,6 +114,11 @@ def completar_form(fecha, afiliado, cod_diag):
     driver.find_element_by_id("zk_comp_306").send_keys("1") #COMPLETA EL 1
     driver.find_element_by_id("zk_comp_308-real").send_keys("AFILIADO PROPIO") #SELECCIONA AFILIADO PROPIO
     driver.find_element_by_id("zk_comp_313").click() #AGREGA PRACTICA
+    # ACA FALTA EL BOTON DE AGREGAR FORMULARIO
+    print("Afiliado " + afiliado + " cargado exitosamente.")
+    time.sleep(2) 
+    # AUTOMATICAMENTE REDIRECCIONA PARA CREAR NUEVO FORMULARIO
+
 
 subcodigos = {"00":"zk_comp_388","01":"zk_comp_389","02":"zk_comp_390","03":"zk_comp_391","04":"zk_comp_392","05":"zk_comp_393","06":"zk_comp_394",
             "07":"zk_comp_395","08":"zk_comp_396","09":"zk_comp_397","10":"zk_comp_398","11":"zk_comp_399","12":"zk_comp_400","13":"zk_comp_401",
@@ -135,15 +142,19 @@ calendario = ["/html/body/div[2]/div/table/tbody/tr[1]/td[1]","/html/body/div[2]
               "/html/body/div[2]/div/table/tbody/tr[5]/td[3]","/html/body/div[2]/div/table/tbody/tr[5]/td[4]","/html/body/div[2]/div/table/tbody/tr[5]/td[5]",
               "/html/body/div[2]/div/table/tbody/tr[5]/td[6]","/html/body/div[2]/div/table/tbody/tr[5]/td[7]"]
 
-time.sleep(1)
 
 if __name__ == "__main__":
     with open("medicos.csv", "r+") as file:
         for medico in file:
             credenciales = medico.split(",")
+            print("Comienza carga de " + credenciales[0])
             login_medico(credenciales[0], credenciales[1])       
+        print(credenciales[0] + " finalizado")
 
-        with open("pacientes.csv", "r+") as file2:
-            for data_paciente in file2:
-                data = data_paciente.split(",")              
-                completar_form(data[0], data[1], data[2])
+            with open("pacientes.csv", "r+") as file2:
+                for data_paciente in file2:
+                    data = data_paciente.split(",")              
+                    completar_form(data[0], data[1], data[2])
+
+                time.sleep(5) #falta ver siguiente paso acá, sleep como pass
+                driver.close() #CIERRA NAVEGADOR PARA LOGUEAR CON PROXIMO MEDICO
