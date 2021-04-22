@@ -117,7 +117,7 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
         time.sleep(2) 
         # AUTOMATICAMENTE REDIRECCIONA PARA CREAR NUEVO FORMULARIO
 
-    with open("/home/mmolinari/Repo/auto_pami/pacientes.csv", "r+") as file2:
+    with open("/home/mmolinari/Repo/auto_pami/pacientes" + credenciales[0] + ".csv", "r+") as file2:
             for data_paciente in file2:
                 data = data_paciente.split(",")              
                 completar_form(data[0], data[1], data[2])
