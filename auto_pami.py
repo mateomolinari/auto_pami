@@ -12,11 +12,10 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
     driver.find_element_by_id('zk_comp_16').send_keys(usuario) 
     driver.find_element_by_id('zk_comp_20').send_keys(password)
     driver.find_element_by_id('zk_comp_37').click() #BOTON LOGIN
-    
+    time.sleep(1)
+    driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
 
     def completar_form(fecha, afiliado, cod_diag):
-
-        driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
 
         try: #MODIFICAR CODIGO DE PRESTACION
             if len(cod_diag) == 3:
@@ -112,7 +111,8 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
         driver.find_element_by_id("zk_comp_306").send_keys("1") #COMPLETA EL 1
         driver.find_element_by_id("zk_comp_308-real").send_keys("AFILIADO PROPIO") #SELECCIONA AFILIADO PROPIO
         driver.find_element_by_id("zk_comp_313").click() #AGREGA PRACTICA
-        # ACA FALTA EL BOTON DE AGREGAR FORMULARIO
+        time.sleep(0.1) 
+        ######## driver.find_element_by_id(zk_comp_317).click() #ENVIA FORMULARIO COMPLETO
         print("Afiliado " + afiliado + " cargado exitosamente.")
         time.sleep(2) 
         # AUTOMATICAMENTE REDIRECCIONA PARA CREAR NUEVO FORMULARIO
