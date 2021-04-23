@@ -1,5 +1,8 @@
 import time
 from selenium import webdriver
+import sys
+from bs4 import BeautifulSoup
+import re
 
 
 def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
@@ -9,9 +12,9 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
     driver.maximize_window()
     time.sleep(1)
 
-    driver.find_element_by_id('zk_comp_16').send_keys(usuario) 
-    driver.find_element_by_id('zk_comp_20').send_keys(password)
-    driver.find_element_by_id('zk_comp_37').click() #BOTON LOGIN
+    driver.find_element_by_xpath('//*[@id="zk_comp_16"]').send_keys(usuario) 
+    driver.find_element_by_xpath('//*[@id="zk_comp_20"]').send_keys(password)
+    driver.find_element_by_xpath('//*[@id="zk_comp_37"]').click() #BOTON LOGIN
     time.sleep(1)
     driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
 
@@ -19,7 +22,7 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
 
         try: #MODIFICAR CODIGO DE PRESTACION
             if len(cod_diag) == 3:
-                cod_final = cod_diag
+                cod_final = cod_diag+"."
             elif len(cod_diag) == 5:
                 cod_final = cod_diag
             elif len(cod_diag) == 4:
@@ -44,16 +47,21 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
             print("Hay algun problema con el numero de afiliado")
 
 
-        driver.find_element_by_id('zk_comp_96').click() #BOTON ALTA
+        driver.find_element_by_xpath('//*[@id="zk_comp_96"]').click() #BOTON ALTA
         time.sleep(1)
 
+        #CALENDARIO
         def modif_calendario():
             
-            driver.find_element_by_id("zk_comp_128-btn").click() #CALENDARIO
+            driver.find_element_by_xpath('//*[@id="zk_comp_128-real"]').click() #CALENDARIO
             time.sleep(0.5)
-            driver.find_element_by_id("_z_6-left").click()
+            driver.find_element_by_xpath('//*[@id="_z_6-left"]').click()
             time.sleep(0.5)
-            dia_fecha = fecha[:2]
+
+            if fecha[0] == 0:
+                dia_fecha = fecha[1:2]
+            else:
+                dia_fecha = fecha[:2]
 
             for xpath in calendario:
                 if driver.find_element_by_xpath(xpath).text == dia_fecha:
@@ -62,68 +70,91 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
 
         modif_calendario()
 
+        #AFILIADO
         time.sleep(0.3)  
-        driver.find_element_by_id('zk_comp_130-real').click() #ABRE FORM DE AFILIADO
+        driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO
         time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_153").send_keys(afiliado_final) #NUMERO DE AFILIADO
+        driver.find_element_by_xpath('//*[@id="zk_comp_153"]').send_keys(afiliado_final) #NUMERO DE AFILIADO
         time.sleep(0.1)
-        driver.find_element_by_id('zk_comp_130-real').click() #ABRE FORM DE AFILIADO
+        driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO
         time.sleep(0.1)
-
+        driver.find_element_by_xpath('//*[@id="zk_comp_153"]').click()
+        driver.find_element_by_xpath('//*[@id="zk_comp_159"]').click() #BUSCAR
+        time.sleep(0.1)       
         if subcodigo_afiliado: #EXCEPCION AFILIADOS CON SUBCODIGOS
-            driver.find_element_by_id("zk_comp_386-btn").click() #ABRE LUPITA DE PARENTEZCO
+            driver.find_element_by_xpath('//*[@id="zk_comp_386-real"]').click() #ABRE LUPITA DE PARENTEZCO
             time.sleep(0.1)
             driver.find_element_by_id(subcodigos[str(subcodigo_afiliado)]).click() #ELIJE PARENTEZCO
             time.sleep(0.1)
-            driver.find_element_by_id("zk_comp_386-btn").click() #ABRE LUPITA DE PARENTEZCO
+            driver.find_element_by_xpath('//*[@id="zk_comp_386-real"]').click() #ABRE LUPITA DE PARENTEZCO
             time.sleep(0.1)
-            driver.find_element_by_id('zk_comp_130-real').click() #ABRE FORM DE AFILIADO DEVUELTA
+            driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO DEVUELTA
             time.sleep(0.1)
-            driver.find_element_by_id("zk_comp_496-cave").click() #CLICKEA NOMBRE Y APELLIDO
+            driver.find_element_by_xpath('//*[@id="zk_comp_496-cave"]').click() #CLICKEA NOMBRE Y APELLIDO
         else:
-            driver.find_element_by_id("zk_comp_496-cave").click() #CLICKEA NOMBRE Y APELLIDO
+            driver.find_element_by_xpath('//*[@id="zk_comp_496-cave"]').click() #CLICKEA NOMBRE Y APELLIDO
 
+        #PROFESIONAL ACTUANTE
         time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_383-real").click() #PROFESIONAL ACTUANTE
+        driver.find_element_by_xpath('//*[@id="zk_comp_383-real"]').click() #PROFESIONAL ACTUANTE
         time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_385").click() #SELECCIONA PROFESIONAL
+        driver.find_element_by_xpath('//*[@id="zk_comp_385"]').click() #SELECCIONA PROFESIONAL
         time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_223-real").click() #LUPA DE DIAGNOSTICO
+
+        #DIAGNOSTICO     
+        def codigo_diagnostico(codigo):
+            
+            driver.find_element_by_xpath('//*[@id="zk_comp_223-real"]').click() #LUPA DE DIAGNOSTICO
+            time.sleep(0.1)
+            driver.find_element_by_xpath('//*[@id="zk_comp_236"]').send_keys("E11") #RELLENA CODIGO DE DIAGNOSTICO
+            time.sleep(0.1)
+            driver.find_element_by_xpath('//*[@id="zk_comp_223-real"]').click() #LUPA DE DIAGNOSTICO
+            time.sleep(0.1)
+            driver.find_element_by_xpath('//*[@id="zk_comp_236"]').click()
+            time.sleep(0.1)
+            driver.find_element_by_xpath('//*[@id="zk_comp_242"]').click() #CLICKEA BUSCAR CODIGO
+            time.sleep(1)
+
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            elementos = soup.find_all("div", {"class": "z-listcell-content"})
+            for elemento in elementos:
+                if codigo in elemento:
+                    ex = str(elemento)
+            m = re.findall(r"zk_comp_\d\d\d-cave", ex)
+        
+            time.sleep(0.1)
+            driver.find_element_by_xpath('//*[@id="'+m[0]+'"]').click() #CLICKEA EL ELEMENTO DE LA LISTA
+            time.sleep(0.1)
+            driver.find_element_by_xpath('//*[@id="zk_comp_262"]').click() #CLICKEA AGREGAR DIAGNOSTICO
+       
+        codigo_diagnostico(cod_final)
         time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_236").send_keys(cod_final) #RELLENA CODIGO DE DIAGNOSTICO
+
+        #PRACTICAS
+        driver.find_element_by_xpath('//*[@id="zk_comp_280-real"]').click() #LUPA DE PRACTICAS
         time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_223-real").click() #LUPA DE DIAGNOSTICO
+        driver.find_element_by_xpath('//*[@id="zk_comp_285"]').send_keys("427101") #RELLENA CODIGO DE PRACTICA
+        driver.find_element_by_xpath('//*[@id="zk_comp_286"]').click() #CLICKEA LUPITA PARA BUSCAR PRACTICA
         time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_242").click() #CLICKEA BUSCAR CODIGO
+        driver.find_element_by_xpath('//*[@id="zk_comp_280-real"]').click() #LUPA DE PRACTICAS
         time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_527-cave").click() #CLICKEA EL PRIMER ELEMENTO DE LA LISTA DE DIAGNOSTICOS
-        time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_262").click() #CLICKEA AGREGAR DIAGNOSTICO
-        time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_280-real").click() #LUPA DE PRACTICAS
-        time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_285").send_keys("427101") #RELLENA CODIGO DE PRACTICA
-        driver.find_element_by_id("zk_comp_286").click() #CLICKEA LUPITA PARA BUSCAR PRACTICA
-        time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_280-real").click() #LUPA DE PRACTICAS
-        time.sleep(0.1)
-        driver.find_element_by_id("zk_comp_536-cave").click() #CLICKEA PRIMER ELEMENTO DE LA LISTA DE PRACTICAS
-        driver.find_element_by_id("zk_comp_306").send_keys("1") #COMPLETA EL 1
-        driver.find_element_by_id("zk_comp_308-real").send_keys("AFILIADO PROPIO") #SELECCIONA AFILIADO PROPIO
-        driver.find_element_by_id("zk_comp_313").click() #AGREGA PRACTICA
+        driver.find_element_by_xpath('//*[@id="zk_comp_536-cave"]').click() #CLICKEA PRIMER ELEMENTO DE LA LISTA DE PRACTICAS
+        driver.find_element_by_xpath('//*[@id="zk_comp_306"]').send_keys("1") #COMPLETA EL 1
+        driver.find_element_by_xpath('//*[@id="zk_comp_308-real"]').send_keys("AFILIADO PROPIO") #SELECCIONA AFILIADO PROPIO
+        driver.find_element_by_xpath('//*[@id="zk_comp_313"]').click() #AGREGA PRACTICA
         time.sleep(0.1) 
-        ######## driver.find_element_by_id(zk_comp_317).click() #ENVIA FORMULARIO COMPLETO
+        ######## driver.find_element_by_xpath(zk_comp_317).click() #ENVIA FORMULARIO COMPLETO
         print("Afiliado " + afiliado + " cargado exitosamente.")
         time.sleep(2) 
         # AUTOMATICAMENTE REDIRECCIONA PARA CREAR NUEVO FORMULARIO
 
-    with open("/home/mmolinari/Repo/auto_pami/pacientes" + credenciales[0] + ".csv", "r+") as file2:
+    with open("/home/mmolinari/Repo/auto_pami/pacientes_csvs/pacientes" + credenciales[0] + ".csv", "r+") as file2:
             for data_paciente in file2:
                 data = data_paciente.split(",")              
                 completar_form(data[0], data[1], data[2])
             time.sleep(5)
             print(f"Finalizada la carga de {credenciales[0]}")
-            driver.close()
+            #driver.close()
 
 subcodigos = {"00":"zk_comp_388","01":"zk_comp_389","02":"zk_comp_390","03":"zk_comp_391","04":"zk_comp_392","05":"zk_comp_393","06":"zk_comp_394",
             "07":"zk_comp_395","08":"zk_comp_396","09":"zk_comp_397","10":"zk_comp_398","11":"zk_comp_399","12":"zk_comp_400","13":"zk_comp_401",
