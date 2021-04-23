@@ -182,8 +182,8 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
         diagnostico(cod_final)
         practicas()
 
-        ######## driver.find_element_by_xpath(zk_comp_317).click() #ENVIA FORMULARIO COMPLETO
-        time.sleep(2) 
+        ######## driver.find_element_by_xpath('//*[@id="zk_comp_317"]').click() #ENVIA FORMULARIO COMPLETO
+        time.sleep(4) 
         # AUTOMATICAMENTE REDIRECCIONA PARA CREAR NUEVO FORMULARIO
 
     with open("/home/mmolinari/Repo/auto_pami/pacientes_csvs/pacientes" + credenciales[0] + ".csv", "r+") as file2:
