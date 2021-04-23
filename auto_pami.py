@@ -38,9 +38,9 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
     driver.find_element_by_xpath('//*[@id="zk_comp_20"]').send_keys(password)
     driver.find_element_by_xpath('//*[@id="zk_comp_37"]').click() #BOTON LOGIN
     time.sleep(1)
-    driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
+    #driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
 
-    def completar_form(fecha, afiliado, cod_diag):
+    def completar_form(afiliado, cod_diag, fecha):
 
         try: #MODIFICAR CODIGO DE PRESTACION
             if len(cod_diag) == 3:
@@ -68,6 +68,8 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
         except ValorAfiliado:
             print("Hay algun problema con el numero de afiliado")
 
+        driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
+        time.sleep(1)
         driver.find_element_by_xpath('//*[@id="zk_comp_96"]').click() #BOTON ALTA
         time.sleep(0.5)
 
@@ -152,7 +154,7 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
        
         
         def practicas():
-
+  
             driver.find_element_by_xpath('//*[@id="zk_comp_280-real"]').click() #LUPA DE PRACTICAS
             time.sleep(0.1)
             driver.find_element_by_xpath('//*[@id="zk_comp_285"]').send_keys("427101") #RELLENA CODIGO DE PRACTICA
@@ -160,7 +162,15 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
             time.sleep(0.1)
             driver.find_element_by_xpath('//*[@id="zk_comp_280-real"]').click() #LUPA DE PRACTICAS
             time.sleep(0.1)
-            driver.find_element_by_xpath('//*[@id="zk_comp_536-cave"]').click() #CLICKEA PRIMER ELEMENTO DE LA LISTA DE PRACTICAS
+
+            soup2 = BeautifulSoup(driver.page_source, 'html.parser')
+            elementos2 = soup2.find_all("div", {"class": "z-listcell-content"})
+            for elemento2 in elementos2:
+                if "CONSULTA MEDICO DE CABECERA" in elemento2:
+                    exx = str(elemento2)
+            n = re.findall(r"zk_comp_\d\d\d-cave", exx)
+
+            driver.find_element_by_xpath('//*[@id="'+n[0]+'"]').click() #CLICKEA PRIMER ELEMENTO DE LA LISTA DE PRACTICAS
             driver.find_element_by_xpath('//*[@id="zk_comp_306"]').send_keys("1") #COMPLETA EL 1
             driver.find_element_by_xpath('//*[@id="zk_comp_308-real"]').send_keys("AFILIADO PROPIO") #SELECCIONA AFILIADO PROPIO
             driver.find_element_by_xpath('//*[@id="zk_comp_313"]').click() #AGREGA PRACTICA
@@ -173,7 +183,6 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
         practicas()
 
         ######## driver.find_element_by_xpath(zk_comp_317).click() #ENVIA FORMULARIO COMPLETO
-        print("Afiliado " + afiliado + " cargado exitosamente.")
         time.sleep(2) 
         # AUTOMATICAMENTE REDIRECCIONA PARA CREAR NUEVO FORMULARIO
 
