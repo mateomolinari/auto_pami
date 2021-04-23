@@ -4,6 +4,28 @@ import sys
 from bs4 import BeautifulSoup
 import re
 
+subcodigos = {"00":"zk_comp_388","01":"zk_comp_389","02":"zk_comp_390","03":"zk_comp_391","04":"zk_comp_392","05":"zk_comp_393","06":"zk_comp_394",
+            "07":"zk_comp_395","08":"zk_comp_396","09":"zk_comp_397","10":"zk_comp_398","11":"zk_comp_399","12":"zk_comp_400","13":"zk_comp_401",
+            "14":"zk_comp_402","15":"zk_comp_403","16":"zk_comp_404","17":"zk_comp_405","18":"zk_comp_406","19":"zk_comp_407","20":"zk_comp_408",
+            "21":"zk_comp_409","22":"zk_comp_410","38":"zk_comp_411","39":"zk_comp_412","40":"zk_comp_413","42":"zk_comp_414","44":"zk_comp_415",
+            "45":"zk_comp_416","46":"zk_comp_417","47":"zk_comp_418","68":"zk_comp_419","69":"zk_comp_420","70":"zk_comp_421","74":"zk_comp_422",
+            "75":"zk_comp_423","76":"zk_comp_424","77":"zk_comp_425","78":"zk_comp_426","82":"zk_comp_427","83":"zk_comp_428","85":"zk_comp_429",
+            "87":"zk_comp_430","88":"zk_comp_431","89":"zk_comp_432","90":"zk_comp_433","91":"zk_comp_434","92":"zk_comp_435","93":"zk_comp_436",
+            "94":"zk_comp_437","95":"zk_comp_438","96":"zk_comp_439","97":"zk_comp_440","98":"zk_comp_441","99":"zk_comp_442"}
+
+calendario = ["/html/body/div[2]/div/table/tbody/tr[1]/td[1]","/html/body/div[2]/div/table/tbody/tr[1]/td[2]","/html/body/div[2]/div/table/tbody/tr[1]/td[3]",
+              "/html/body/div[2]/div/table/tbody/tr[1]/td[4]","/html/body/div[2]/div/table/tbody/tr[1]/td[5]","/html/body/div[2]/div/table/tbody/tr[1]/td[6]",
+              "/html/body/div[2]/div/table/tbody/tr[1]/td[7]","/html/body/div[2]/div/table/tbody/tr[2]/td[1]","/html/body/div[2]/div/table/tbody/tr[2]/td[2]",
+              "/html/body/div[2]/div/table/tbody/tr[2]/td[3]","/html/body/div[2]/div/table/tbody/tr[2]/td[4]","/html/body/div[2]/div/table/tbody/tr[2]/td[5]",
+              "/html/body/div[2]/div/table/tbody/tr[2]/td[6]","/html/body/div[2]/div/table/tbody/tr[2]/td[7]","/html/body/div[2]/div/table/tbody/tr[3]/td[1]",
+              "/html/body/div[2]/div/table/tbody/tr[3]/td[2]","/html/body/div[2]/div/table/tbody/tr[3]/td[3]","/html/body/div[2]/div/table/tbody/tr[3]/td[4]",
+              "/html/body/div[2]/div/table/tbody/tr[3]/td[5]","/html/body/div[2]/div/table/tbody/tr[3]/td[6]","/html/body/div[2]/div/table/tbody/tr[3]/td[7]",
+              "/html/body/div[2]/div/table/tbody/tr[4]/td[1]","/html/body/div[2]/div/table/tbody/tr[4]/td[2]","/html/body/div[2]/div/table/tbody/tr[4]/td[3]",
+              "/html/body/div[2]/div/table/tbody/tr[4]/td[4]","/html/body/div[2]/div/table/tbody/tr[4]/td[5]","/html/body/div[2]/div/table/tbody/tr[4]/td[6]",
+              "/html/body/div[2]/div/table/tbody/tr[4]/td[7]","/html/body/div[2]/div/table/tbody/tr[5]/td[1]","/html/body/div[2]/div/table/tbody/tr[5]/td[2]",
+              "/html/body/div[2]/div/table/tbody/tr[5]/td[3]","/html/body/div[2]/div/table/tbody/tr[5]/td[4]","/html/body/div[2]/div/table/tbody/tr[5]/td[5]",
+              "/html/body/div[2]/div/table/tbody/tr[5]/td[6]","/html/body/div[2]/div/table/tbody/tr[5]/td[7]"]
+
 
 def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
     
@@ -46,11 +68,10 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
         except ValorAfiliado:
             print("Hay algun problema con el numero de afiliado")
 
-
         driver.find_element_by_xpath('//*[@id="zk_comp_96"]').click() #BOTON ALTA
-        time.sleep(1)
+        time.sleep(0.5)
 
-        #CALENDARIO
+
         def modif_calendario():
             
             driver.find_element_by_xpath('//*[@id="zk_comp_128-real"]').click() #CALENDARIO
@@ -58,8 +79,8 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
             driver.find_element_by_xpath('//*[@id="_z_6-left"]').click()
             time.sleep(0.5)
 
-            if fecha[0] == 0:
-                dia_fecha = fecha[1:2]
+            if fecha[0] == "0":
+                dia_fecha = fecha[1]
             else:
                 dia_fecha = fecha[:2]
 
@@ -68,52 +89,54 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
                     driver.find_element_by_xpath(xpath).click()
                     break
 
-        modif_calendario()
+        
+        def cargar_afiliado():
 
-        #AFILIADO
-        time.sleep(0.3)  
-        driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO
-        time.sleep(0.1)
-        driver.find_element_by_xpath('//*[@id="zk_comp_153"]').send_keys(afiliado_final) #NUMERO DE AFILIADO
-        time.sleep(0.1)
-        driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO
-        time.sleep(0.1)
-        driver.find_element_by_xpath('//*[@id="zk_comp_153"]').click()
-        driver.find_element_by_xpath('//*[@id="zk_comp_159"]').click() #BUSCAR
-        time.sleep(0.1)       
-        if subcodigo_afiliado: #EXCEPCION AFILIADOS CON SUBCODIGOS
-            driver.find_element_by_xpath('//*[@id="zk_comp_386-real"]').click() #ABRE LUPITA DE PARENTEZCO
+            time.sleep(0.3)  
+            driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO
             time.sleep(0.1)
-            driver.find_element_by_id(subcodigos[str(subcodigo_afiliado)]).click() #ELIJE PARENTEZCO
+            driver.find_element_by_xpath('//*[@id="zk_comp_153"]').send_keys(afiliado_final) #NUMERO DE AFILIADO
             time.sleep(0.1)
-            driver.find_element_by_xpath('//*[@id="zk_comp_386-real"]').click() #ABRE LUPITA DE PARENTEZCO
+            driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO
             time.sleep(0.1)
-            driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO DEVUELTA
-            time.sleep(0.1)
-            driver.find_element_by_xpath('//*[@id="zk_comp_496-cave"]').click() #CLICKEA NOMBRE Y APELLIDO
-        else:
-            driver.find_element_by_xpath('//*[@id="zk_comp_496-cave"]').click() #CLICKEA NOMBRE Y APELLIDO
+            driver.find_element_by_xpath('//*[@id="zk_comp_153"]').click()
+            driver.find_element_by_xpath('//*[@id="zk_comp_159"]').click() #BUSCAR
+            time.sleep(0.1)       
+            if subcodigo_afiliado: #EXCEPCION AFILIADOS CON SUBCODIGOS
+                driver.find_element_by_xpath('//*[@id="zk_comp_386-real"]').click() #ABRE LUPITA DE PARENTEZCO
+                time.sleep(0.1)
+                driver.find_element_by_id(subcodigos[str(subcodigo_afiliado)]).click() #ELIJE PARENTEZCO
+                time.sleep(0.1)
+                driver.find_element_by_xpath('//*[@id="zk_comp_386-real"]').click() #ABRE LUPITA DE PARENTEZCO
+                time.sleep(0.1)
+                driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO DEVUELTA
+                time.sleep(0.1)
+                driver.find_element_by_xpath('//*[@id="zk_comp_496-cave"]').click() #CLICKEA NOMBRE Y APELLIDO
+            else:
+                driver.find_element_by_xpath('//*[@id="zk_comp_496-cave"]').click() #CLICKEA NOMBRE Y APELLIDO
 
-        #PROFESIONAL ACTUANTE
-        time.sleep(0.1)
-        driver.find_element_by_xpath('//*[@id="zk_comp_383-real"]').click() #PROFESIONAL ACTUANTE
-        time.sleep(0.1)
-        driver.find_element_by_xpath('//*[@id="zk_comp_385"]').click() #SELECCIONA PROFESIONAL
-        time.sleep(0.1)
 
-        #DIAGNOSTICO     
-        def codigo_diagnostico(codigo):
+        def profesional_actuante():
+
+            time.sleep(0.1)
+            driver.find_element_by_xpath('//*[@id="zk_comp_383-real"]').click() #PROFESIONAL ACTUANTE
+            time.sleep(0.1)
+            driver.find_element_by_xpath('//*[@id="zk_comp_385"]').click() #SELECCIONA PROFESIONAL
+            time.sleep(0.1)
+
+
+        def diagnostico(codigo):
             
             driver.find_element_by_xpath('//*[@id="zk_comp_223-real"]').click() #LUPA DE DIAGNOSTICO
             time.sleep(0.1)
-            driver.find_element_by_xpath('//*[@id="zk_comp_236"]').send_keys("E11") #RELLENA CODIGO DE DIAGNOSTICO
+            driver.find_element_by_xpath('//*[@id="zk_comp_236"]').send_keys(codigo) #RELLENA CODIGO DE DIAGNOSTICO
             time.sleep(0.1)
             driver.find_element_by_xpath('//*[@id="zk_comp_223-real"]').click() #LUPA DE DIAGNOSTICO
             time.sleep(0.1)
             driver.find_element_by_xpath('//*[@id="zk_comp_236"]').click()
             time.sleep(0.1)
             driver.find_element_by_xpath('//*[@id="zk_comp_242"]').click() #CLICKEA BUSCAR CODIGO
-            time.sleep(1)
+            time.sleep(0.1)
 
             soup = BeautifulSoup(driver.page_source, 'html.parser')
             elementos = soup.find_all("div", {"class": "z-listcell-content"})
@@ -127,22 +150,28 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
             time.sleep(0.1)
             driver.find_element_by_xpath('//*[@id="zk_comp_262"]').click() #CLICKEA AGREGAR DIAGNOSTICO
        
-        codigo_diagnostico(cod_final)
-        time.sleep(0.1)
+        
+        def practicas():
 
-        #PRACTICAS
-        driver.find_element_by_xpath('//*[@id="zk_comp_280-real"]').click() #LUPA DE PRACTICAS
-        time.sleep(0.1)
-        driver.find_element_by_xpath('//*[@id="zk_comp_285"]').send_keys("427101") #RELLENA CODIGO DE PRACTICA
-        driver.find_element_by_xpath('//*[@id="zk_comp_286"]').click() #CLICKEA LUPITA PARA BUSCAR PRACTICA
-        time.sleep(0.1)
-        driver.find_element_by_xpath('//*[@id="zk_comp_280-real"]').click() #LUPA DE PRACTICAS
-        time.sleep(0.1)
-        driver.find_element_by_xpath('//*[@id="zk_comp_536-cave"]').click() #CLICKEA PRIMER ELEMENTO DE LA LISTA DE PRACTICAS
-        driver.find_element_by_xpath('//*[@id="zk_comp_306"]').send_keys("1") #COMPLETA EL 1
-        driver.find_element_by_xpath('//*[@id="zk_comp_308-real"]').send_keys("AFILIADO PROPIO") #SELECCIONA AFILIADO PROPIO
-        driver.find_element_by_xpath('//*[@id="zk_comp_313"]').click() #AGREGA PRACTICA
-        time.sleep(0.1) 
+            driver.find_element_by_xpath('//*[@id="zk_comp_280-real"]').click() #LUPA DE PRACTICAS
+            time.sleep(0.1)
+            driver.find_element_by_xpath('//*[@id="zk_comp_285"]').send_keys("427101") #RELLENA CODIGO DE PRACTICA
+            driver.find_element_by_xpath('//*[@id="zk_comp_286"]').click() #CLICKEA LUPITA PARA BUSCAR PRACTICA
+            time.sleep(0.1)
+            driver.find_element_by_xpath('//*[@id="zk_comp_280-real"]').click() #LUPA DE PRACTICAS
+            time.sleep(0.1)
+            driver.find_element_by_xpath('//*[@id="zk_comp_536-cave"]').click() #CLICKEA PRIMER ELEMENTO DE LA LISTA DE PRACTICAS
+            driver.find_element_by_xpath('//*[@id="zk_comp_306"]').send_keys("1") #COMPLETA EL 1
+            driver.find_element_by_xpath('//*[@id="zk_comp_308-real"]').send_keys("AFILIADO PROPIO") #SELECCIONA AFILIADO PROPIO
+            driver.find_element_by_xpath('//*[@id="zk_comp_313"]').click() #AGREGA PRACTICA
+            time.sleep(0.1) 
+
+        modif_calendario()
+        cargar_afiliado()
+        profesional_actuante()
+        diagnostico(cod_final)
+        practicas()
+
         ######## driver.find_element_by_xpath(zk_comp_317).click() #ENVIA FORMULARIO COMPLETO
         print("Afiliado " + afiliado + " cargado exitosamente.")
         time.sleep(2) 
@@ -155,28 +184,6 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
             time.sleep(5)
             print(f"Finalizada la carga de {credenciales[0]}")
             #driver.close()
-
-subcodigos = {"00":"zk_comp_388","01":"zk_comp_389","02":"zk_comp_390","03":"zk_comp_391","04":"zk_comp_392","05":"zk_comp_393","06":"zk_comp_394",
-            "07":"zk_comp_395","08":"zk_comp_396","09":"zk_comp_397","10":"zk_comp_398","11":"zk_comp_399","12":"zk_comp_400","13":"zk_comp_401",
-            "14":"zk_comp_402","15":"zk_comp_403","16":"zk_comp_404","17":"zk_comp_405","18":"zk_comp_406","19":"zk_comp_407","20":"zk_comp_408",
-            "21":"zk_comp_409","22":"zk_comp_410","38":"zk_comp_411","39":"zk_comp_412","40":"zk_comp_413","42":"zk_comp_414","44":"zk_comp_415",
-            "45":"zk_comp_416","46":"zk_comp_417","47":"zk_comp_418","68":"zk_comp_419","69":"zk_comp_420","70":"zk_comp_421","74":"zk_comp_422",
-            "75":"zk_comp_423","76":"zk_comp_424","77":"zk_comp_425","78":"zk_comp_426","82":"zk_comp_427","83":"zk_comp_428","85":"zk_comp_429",
-            "87":"zk_comp_430","88":"zk_comp_431","89":"zk_comp_432","90":"zk_comp_433","91":"zk_comp_434","92":"zk_comp_435","93":"zk_comp_436",
-            "94":"zk_comp_437","95":"zk_comp_438","96":"zk_comp_439","97":"zk_comp_440","98":"zk_comp_441","99":"zk_comp_442"}
-
-calendario = ["/html/body/div[2]/div/table/tbody/tr[1]/td[1]","/html/body/div[2]/div/table/tbody/tr[1]/td[2]","/html/body/div[2]/div/table/tbody/tr[1]/td[3]",
-              "/html/body/div[2]/div/table/tbody/tr[1]/td[4]","/html/body/div[2]/div/table/tbody/tr[1]/td[5]","/html/body/div[2]/div/table/tbody/tr[1]/td[6]",
-              "/html/body/div[2]/div/table/tbody/tr[1]/td[7]","/html/body/div[2]/div/table/tbody/tr[2]/td[1]","/html/body/div[2]/div/table/tbody/tr[2]/td[2]",
-              "/html/body/div[2]/div/table/tbody/tr[2]/td[3]","/html/body/div[2]/div/table/tbody/tr[2]/td[4]","/html/body/div[2]/div/table/tbody/tr[2]/td[5]",
-              "/html/body/div[2]/div/table/tbody/tr[2]/td[6]","/html/body/div[2]/div/table/tbody/tr[2]/td[7]","/html/body/div[2]/div/table/tbody/tr[3]/td[1]",
-              "/html/body/div[2]/div/table/tbody/tr[3]/td[2]","/html/body/div[2]/div/table/tbody/tr[3]/td[3]","/html/body/div[2]/div/table/tbody/tr[3]/td[4]",
-              "/html/body/div[2]/div/table/tbody/tr[3]/td[5]","/html/body/div[2]/div/table/tbody/tr[3]/td[6]","/html/body/div[2]/div/table/tbody/tr[3]/td[7]",
-              "/html/body/div[2]/div/table/tbody/tr[4]/td[1]","/html/body/div[2]/div/table/tbody/tr[4]/td[2]","/html/body/div[2]/div/table/tbody/tr[4]/td[3]",
-              "/html/body/div[2]/div/table/tbody/tr[4]/td[4]","/html/body/div[2]/div/table/tbody/tr[4]/td[5]","/html/body/div[2]/div/table/tbody/tr[4]/td[6]",
-              "/html/body/div[2]/div/table/tbody/tr[4]/td[7]","/html/body/div[2]/div/table/tbody/tr[5]/td[1]","/html/body/div[2]/div/table/tbody/tr[5]/td[2]",
-              "/html/body/div[2]/div/table/tbody/tr[5]/td[3]","/html/body/div[2]/div/table/tbody/tr[5]/td[4]","/html/body/div[2]/div/table/tbody/tr[5]/td[5]",
-              "/html/body/div[2]/div/table/tbody/tr[5]/td[6]","/html/body/div[2]/div/table/tbody/tr[5]/td[7]"]
 
 
 if __name__ == "__main__":
