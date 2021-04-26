@@ -29,7 +29,7 @@ calendario = ["/html/body/div[2]/div/table/tbody/tr[1]/td[1]","/html/body/div[2]
 
 def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
     
-    driver = webdriver.Firefox(executable_path=r'/home/mmolinari/Repo/auto_pami/geckodriver')
+    driver = webdriver.Chrome(executable_path=r'C:/Users/Alejo/Documents/Pami/auto_pami/geckodriver')
     driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/login.isp') #NAVEGADOR
     driver.maximize_window()
     time.sleep(1)
@@ -56,14 +56,14 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
 
 
         try: #MODIFICAR NUMERO DE AFILIADO
-            if len(afiliado) == 12:
-                afiliado_final = afiliado
-                subcodigo_afiliado = False
-            elif (len(afiliado) == 14) and afiliado[12::] == "00":
-                afiliado_final = afiliado[:12]
-                subcodigo_afiliado = False
+            if (len(afiliado) == 14) and afiliado[12::] == "00":
+                afiliado_final, subcodigo_afiliado = afiliado[:12], "00 "
             elif (len(afiliado) == 14) and afiliado[12::] != "00":
-                afiliado_final, subcodigo_afiliado = afiliado[:12], afiliado[12::]
+                afiliado_final, subcodigo_afiliado = afiliado[:12], afiliado[12::]+" "
+            elif (len(afiliado) == 13) and afiliado[11::] == "00":
+                afiliado_final, subcodigo_afiliado = afiliado[:11], "00 "
+            elif (len(afiliado) == 13) and afiliado[11::] != "00":
+                afiliado_final, subcodigo_afiliado = afiliado[:11], afiliado[11::]+" "
 
         except ValorAfiliado:
             print("Hay algun problema con el numero de afiliado")
@@ -94,74 +94,74 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
         
         def cargar_afiliado():
 
-            time.sleep(0.3)  
+            time.sleep(0.2)  
             driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO
-            time.sleep(0.1)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_153"]').send_keys(afiliado_final) #NUMERO DE AFILIADO
-            time.sleep(0.1)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO
-            time.sleep(0.1)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_153"]').click()
             driver.find_element_by_xpath('//*[@id="zk_comp_159"]').click() #BUSCAR
-            time.sleep(0.1)       
-            if subcodigo_afiliado: #EXCEPCION AFILIADOS CON SUBCODIGOS
-                driver.find_element_by_xpath('//*[@id="zk_comp_386-real"]').click() #ABRE LUPITA DE PARENTEZCO
-                time.sleep(0.1)
-                driver.find_element_by_id(subcodigos[str(subcodigo_afiliado)]).click() #ELIJE PARENTEZCO
-                time.sleep(0.1)
-                driver.find_element_by_xpath('//*[@id="zk_comp_386-real"]').click() #ABRE LUPITA DE PARENTEZCO
-                time.sleep(0.1)
-                driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO DEVUELTA
-                time.sleep(0.1)
-                driver.find_element_by_xpath('//*[@id="zk_comp_496-cave"]').click() #CLICKEA NOMBRE Y APELLIDO
-            else:
-                driver.find_element_by_xpath('//*[@id="zk_comp_496-cave"]').click() #CLICKEA NOMBRE Y APELLIDO
+            time.sleep(0.2)       
+            time.sleep(1)
+
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            elementos = soup.find_all("div", {"class": "z-listcell-content"})
+            for elemento in elementos:
+                if subcodigo_afiliado in str(elemento):
+                    variable = str(elemento)
+            o = re.findall(r"zk_comp_\d\d\d-cave", variable)
+
+            time.sleep(0.8)
+            driver.find_element_by_xpath('//*[@id="'+o[0]+'"]').click() #CLICKEA NOMBRE Y APELLIDO
 
 
         def profesional_actuante():
 
-            time.sleep(0.1)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_383-real"]').click() #PROFESIONAL ACTUANTE
-            time.sleep(0.1)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_385"]').click() #SELECCIONA PROFESIONAL
-            time.sleep(0.1)
+            time.sleep(0.2)
 
 
         def diagnostico(codigo):
             
             driver.find_element_by_xpath('//*[@id="zk_comp_223-real"]').click() #LUPA DE DIAGNOSTICO
-            time.sleep(0.1)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_236"]').send_keys(codigo) #RELLENA CODIGO DE DIAGNOSTICO
-            time.sleep(0.1)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_223-real"]').click() #LUPA DE DIAGNOSTICO
-            time.sleep(0.1)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_236"]').click()
-            time.sleep(0.1)
+            time.sleep(0.5)
             driver.find_element_by_xpath('//*[@id="zk_comp_242"]').click() #CLICKEA BUSCAR CODIGO
-            time.sleep(0.1)
+            time.sleep(1)
 
             soup = BeautifulSoup(driver.page_source, 'html.parser')
-            elementos = soup.find_all("div", {"class": "z-listcell-content"})
-            for elemento in elementos:
-                if codigo in elemento:
-                    ex = str(elemento)
+            elementos3 = soup.find_all("div", {"class": "z-listcell-content"})
+            for elemento3 in elementos3:
+                if codigo in str(elemento3):
+                    ex = str(elemento3)
+                    break
             m = re.findall(r"zk_comp_\d\d\d-cave", ex)
         
-            time.sleep(0.1)
+            time.sleep(0.8)
             driver.find_element_by_xpath('//*[@id="'+m[0]+'"]').click() #CLICKEA EL ELEMENTO DE LA LISTA
-            time.sleep(0.1)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_262"]').click() #CLICKEA AGREGAR DIAGNOSTICO
        
         
         def practicas():
   
             driver.find_element_by_xpath('//*[@id="zk_comp_280-real"]').click() #LUPA DE PRACTICAS
-            time.sleep(0.1)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_285"]').send_keys("427101") #RELLENA CODIGO DE PRACTICA
             driver.find_element_by_xpath('//*[@id="zk_comp_286"]').click() #CLICKEA LUPITA PARA BUSCAR PRACTICA
-            time.sleep(0.1)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_280-real"]').click() #LUPA DE PRACTICAS
-            time.sleep(0.1)
+            time.sleep(0.2)
 
             soup2 = BeautifulSoup(driver.page_source, 'html.parser')
             elementos2 = soup2.find_all("div", {"class": "z-listcell-content"})
@@ -174,19 +174,20 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
             driver.find_element_by_xpath('//*[@id="zk_comp_306"]').send_keys("1") #COMPLETA EL 1
             driver.find_element_by_xpath('//*[@id="zk_comp_308-real"]').send_keys("AFILIADO PROPIO") #SELECCIONA AFILIADO PROPIO
             driver.find_element_by_xpath('//*[@id="zk_comp_313"]').click() #AGREGA PRACTICA
-            time.sleep(0.1) 
+            time.sleep(0.2) 
 
         modif_calendario()
         cargar_afiliado()
         profesional_actuante()
         diagnostico(cod_final)
         practicas()
+        print(f"{afiliado} cargado exitosamente")
 
         ######## driver.find_element_by_xpath('//*[@id="zk_comp_317"]').click() #ENVIA FORMULARIO COMPLETO
         time.sleep(4) 
         # AUTOMATICAMENTE REDIRECCIONA PARA CREAR NUEVO FORMULARIO
 
-    with open("/home/mmolinari/Repo/auto_pami/pacientes_csvs/pacientes" + credenciales[0] + ".csv", "r+") as file2:
+    with open("C:/Users/Alejo/Documents/Pami/auto_pami/pacientes_csvs/pacientes" + credenciales[0] + ".csv", "r+") as file2:
             for data_paciente in file2:
                 data = data_paciente.split(",")              
                 completar_form(data[0], data[1], data[2])
@@ -197,7 +198,7 @@ def login_medico(usuario, password):      #LOGUEAR USUARIO Y PW
 
 if __name__ == "__main__":
 
-    with open("/home/mmolinari/Repo/auto_pami/medicos.csv", "+r") as file:
+    with open("C:/Users/Alejo/Documents/Pami/auto_pami/medicos.csv", "+r") as file:
         for medico in file:
             credenciales = medico.split(",")
             print(f"Comienza carga de {credenciales[0]}")
