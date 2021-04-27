@@ -44,7 +44,7 @@ def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
     def completar_form(afiliado, cod_diag, fecha):   
 
         driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
-        time.sleep(1)
+        time.sleep(0.5)
         driver.find_element_by_xpath('//*[@id="zk_comp_96"]').click() #BOTON ALTA
         time.sleep(0.5)
 
@@ -52,9 +52,9 @@ def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
         def modif_calendario():
             
             driver.find_element_by_xpath('//*[@id="zk_comp_128-real"]').click() #CALENDARIO
-            time.sleep(0.5)
+            time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="_z_6-left"]').click()
-            time.sleep(0.5)
+            time.sleep(0.2)
 
             if fecha[0] == "0":
                 dia_fecha = fecha[1]
@@ -89,8 +89,7 @@ def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
             driver.find_element_by_xpath('//*[@id="zk_comp_130-real"]').click() #ABRE FORM DE AFILIADO
             time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_153"]').click()
-            driver.find_element_by_xpath('//*[@id="zk_comp_159"]').click() #BUSCAR
-            time.sleep(0.2)       
+            driver.find_element_by_xpath('//*[@id="zk_comp_159"]').click() #BUSCAR     
             time.sleep(1)
 
             soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -100,7 +99,7 @@ def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
                     varAfiliado = str(elmtAfiliado)
             afil = re.findall(r"zk_comp_\d\d\d-cave", varAfiliado)
 
-            time.sleep(0.8)
+            time.sleep(0.7)
             driver.find_element_by_xpath('//*[@id="'+afil[0]+'"]').click() #CLICKEA NOMBRE Y APELLIDO
 
 
@@ -145,7 +144,7 @@ def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
                     break
             diag = re.findall(r"zk_comp_\d\d\d-cave", varDiagnostico)
         
-            time.sleep(0.8)
+            time.sleep(0.5)
             driver.find_element_by_xpath('//*[@id="'+diag[0]+'"]').click() #CLICKEA EL ELEMENTO DE LA LISTA
             time.sleep(0.2)
             driver.find_element_by_xpath('//*[@id="zk_comp_262"]').click() #CLICKEA AGREGAR DIAGNOSTICO
@@ -182,7 +181,7 @@ def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
         print(f"{afiliado} cargado exitosamente")
 
         ######## driver.find_element_by_xpath('//*[@id="zk_comp_317"]').click() #ENVIA FORMULARIO COMPLETO
-        time.sleep(3)
+        time.sleep(1)
 
     with open("/home/mmolinari/Repo/auto_pami/pacientes_csvs/pacientes" + credenciales[0] + ".csv", "r+") as file2:
             for data_paciente in file2:
