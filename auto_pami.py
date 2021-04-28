@@ -39,22 +39,24 @@ def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
     driver.find_element_by_xpath('//*[@id="zk_comp_20"]').send_keys(password)
     driver.find_element_by_xpath('//*[@id="zk_comp_37"]').click() #BOTON LOGIN
     time.sleep(1)
-    #driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
+    driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
 
     def completar_form(afiliado, cod_diag, fecha):   
 
+        time.sleep(1)
         driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
         time.sleep(0.5)
         driver.find_element_by_xpath('//*[@id="zk_comp_96"]').click() #BOTON ALTA
         time.sleep(0.5)
 
 
+                            ################### CAMBIAR SEGUN MES, SI ES ACTUAL O SIGUIENTE ####################
         def modif_calendario():
             
             driver.find_element_by_xpath('//*[@id="zk_comp_128-real"]').click() #CALENDARIO
             time.sleep(0.2)
-            driver.find_element_by_xpath('//*[@id="_z_6-left"]').click()
-            time.sleep(0.2)
+            #driver.find_element_by_xpath('//*[@id="_z_6-left"]').click() 
+            #time.sleep(0.2)
 
             if fecha[0] == "0":
                 dia_fecha = fecha[1]
@@ -99,7 +101,7 @@ def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
                     varAfiliado = str(elmtAfiliado)
             afil = re.findall(r"zk_comp_\d\d\d-cave", varAfiliado)
 
-            time.sleep(0.7)
+            time.sleep(0.5)
             driver.find_element_by_xpath('//*[@id="'+afil[0]+'"]').click() #CLICKEA NOMBRE Y APELLIDO
 
 
@@ -178,16 +180,22 @@ def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
         profesional_actuante()
         diagnostico()
         practicas()
-        print(f"{afiliado} cargado exitosamente")
+        time.sleep(0.2)
+        driver.find_element_by_xpath('//*[@id="zk_comp_317"]').click() #ENVIA FORMULARIO COMPLETO
+        time.sleep(0.3)
 
-        ######## driver.find_element_by_xpath('//*[@id="zk_comp_317"]').click() #ENVIA FORMULARIO COMPLETO
-        time.sleep(1)
-
-    with open("/home/mmolinari/Repo/auto_pami/pacientes_csvs/pacientes" + credenciales[0] + ".csv", "r+") as file2:
-            for data_paciente in file2:
-                data = data_paciente.split(",")              
-                completar_form(data[0], data[1], data[2])
-            print(f"Finalizada la carga de {credenciales[0]}")
+    with open("/home/mmolinari/Repo/auto_pami/pacientes_csvs/pacientes" + credenciales[0] + ".csv", "r+") as pacientes:
+            for paciente in pacientes:
+                data = paciente.split(",")              
+                try:
+                    completar_form(data[0], data[1], data[2])
+                    if driver.find_element_by_xpath('//*[@id="zk_comp_553"]'):
+                        print(f"{data[0]} ya cargado previamente")
+                    else:
+                        print(f"{data[0]} cargado")
+                except UnboundLocalError:
+                    print(f"local variable referenced before assignment con {data[0]}")
+                    time.sleep(1.5)
             #driver.close()
 
 
