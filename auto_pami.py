@@ -3,7 +3,7 @@ from selenium import webdriver
 import sys
 from bs4 import BeautifulSoup
 import re
-from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.chrome.service import Service
 
 subcodigos = {"00":"zk_comp_388","01":"zk_comp_389","02":"zk_comp_390","03":"zk_comp_391","04":"zk_comp_392","05":"zk_comp_393","06":"zk_comp_394",
             "07":"zk_comp_395","08":"zk_comp_396","09":"zk_comp_397","10":"zk_comp_398","11":"zk_comp_399","12":"zk_comp_400","13":"zk_comp_401",
@@ -30,8 +30,8 @@ calendario = ["/html/body/div[2]/div/table/tbody/tr[1]/td[1]","/html/body/div[2]
 
 def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
     
-    s = Service('/home/mmolinari/Repo/auto_pami/geckodriver')
-    driver = webdriver.Firefox(service = s)
+    #s = Service('geckodriver')
+    driver = webdriver.Chrome(executable_path= "C:/Users/Alejo/Documents/Pami/auto_pami/chromedriver.exe")
     driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/login.isp') #NAVEGADOR
     driver.maximize_window()
 
@@ -40,6 +40,7 @@ def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
     driver.find_element_by_xpath('//*[@id="zk_comp_37"]').click() #BOTON LOGIN
     time.sleep(1)
     driver.get('https://efectoresweb.pami.org.ar/EfectoresWeb/ambulatorio.isp') #PAGINA DE ALTA
+    time.sleep(0.5)
 
     def completar_form(afiliado, cod_diag, fecha):   
 
@@ -184,23 +185,27 @@ def cargar_medico(usuario, password):      #LOGUEAR USUARIO Y PW
         driver.find_element_by_xpath('//*[@id="zk_comp_317"]').click() #ENVIA FORMULARIO COMPLETO
         time.sleep(0.3)
 
-    with open("/home/mmolinari/Repo/auto_pami/pacientes_csvs/pacientes" + credenciales[0] + ".csv", "r+") as pacientes:
+    with open("C:/Users/Alejo/Documents/Pami/auto_pami/pacientes_csvs/pacientes" + credenciales[0] + ".csv", "r+") as pacientes:
             for paciente in pacientes:
-                data = paciente.split(",")              
-                try:
-                    completar_form(data[0], data[1], data[2])
-                    if driver.find_element_by_xpath('//*[@id="zk_comp_553"]'):
-                        print(f"{data[0]} ya cargado previamente")
+                data = paciente.split(",") 
+                with open("C:/Users/Alejo/Documents/Pami/auto_pami/carga" + credenciales[0] + ".csv", "r+") as log:
+                    if data[0] not in log.read():
+                        try:
+                            completar_form(data[0], data[1], data[2])
+                            print(f"{data[0]} cargado")
+                            log.write(f"{data[0]}\n")
+
+                        except UnboundLocalError:
+                            print(f"UnboundLocalError con {data[0]}")
+                            log.write(f"{data[0]} ERROR \n")
                     else:
-                        print(f"{data[0]} cargado")
-                except UnboundLocalError:
-                    print(f"local variable referenced before assignment con {data[0]}")
+                        print(f"{data[0]} cargado previamente")
                     time.sleep(1.5)
             #driver.close()
 
 
 if __name__ == "__main__":
-    with open("/home/mmolinari/Repo/auto_pami/medicos.csv", "+r") as file:
+    with open("C:/Users/Alejo/Documents/Pami/auto_pami/medicos.csv", "+r") as file:
         for medico in file:
             credenciales = medico.split(",")
             print(f"Comienza carga de {credenciales[0]}")
